@@ -15,7 +15,7 @@ const RegisterUser = async (req, res) => {
     if(existingUser){
       return res.status(400).json({message: "Username or email already exists"});
     }
-    const userRole = await Role.findOne({name: "NO GET"});
+    const userRole = await Role.findOne({name: "Super Admin"});
     if (!userRole) {
       return res.status(500).json({ message: 'Default role not found' });
     }
@@ -28,7 +28,7 @@ const RegisterUser = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json(newUser);
+    res.status(201).json(newUser.username, newUser.email, newUser.role);
   } catch(err){
     console.log(`Error creating User: ${err}`);
     res.status(500).send({message : "Internal Server Error"});
@@ -51,7 +51,7 @@ const LoginUser = async (req, res) => {
 
     const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn: '1d'});
     res.cookie("access_token", token)
-    res.status(200).send({message : "User Logged In Success"});
+    res.status(200).send({message : "User Logged In with Access Token"});
   } catch (error) {
     console.log(`Error logging user: ${error} `);
     res.status(500).send({message : "Internal Server Error"});
@@ -86,10 +86,9 @@ const checkLoggedIn = async (req, res) => {
       return res.status(401).json({ loggedIn: false });
     }
 
-    // Check if user exists
     const user = await User.findById(decodedToken.userId);
     if (!user) {
-      return res.status(401).json({ loggedIn: true });
+      return res.status(401).json({ loggedIn: false });
     }
 
     return res.status(200).json({ loggedIn: true });

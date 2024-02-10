@@ -11,6 +11,7 @@ const DataController = {
       console.log(`Error getting data ${err}`);
     }
   },
+
   createData: async (req, res) => {
     try{
       const {name, email, phone, message } = req.body;
@@ -20,6 +21,7 @@ const DataController = {
       console.log(`Error creating data ${err}`);
     }
   },
+
   updateData: async (req, res) => {
     try{
       const { id } = req.params;
@@ -29,6 +31,7 @@ const DataController = {
       console.log(`Error updating data ${err}`);
     }
   },
+  
   deleteData: async (req, res) => {
     try{
       const { id } = req.params;

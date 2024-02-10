@@ -20,7 +20,6 @@ function DashBoard() {
     try{
       const response = await axios.get('http://localhost:4005/api/getData')
       setData(response.data)
-      console.log(response)
     }catch(err){
       console.log(err);
     }

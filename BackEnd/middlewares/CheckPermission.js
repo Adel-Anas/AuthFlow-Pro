@@ -4,7 +4,9 @@ import User from '../models/UserSchema.js';
 
 const checkPermission = async (req, res, next) => {
   try {
-    const access_token = req.cookies.access_token;
+    const { access_token } = req.cookies;
+
+    console.log(access_token);
     if (!access_token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -12,7 +14,6 @@ const checkPermission = async (req, res, next) => {
     const verifyToken = jwt.verify(access_token, process.env.SECRET_KEY);
     req.userId = verifyToken.userId;
 
-    // Retrieve user with populated role
     const user = await User.findById(req.userId).populate({
       path: 'role',
       populate: { path: 'permissions' }

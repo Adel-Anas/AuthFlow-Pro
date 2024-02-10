@@ -17,16 +17,8 @@ function Login() {
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
-        const token = localStorage.getItem("login")
-        console.log(token)
         const response = await axios.get(
-          "http://localhost:4005/users/getPermissions",
-          {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
+          "http://localhost:4005/users/getPermissions");
         if (response.data.loggedIn) {
           navigate("/Dashboard");
         }

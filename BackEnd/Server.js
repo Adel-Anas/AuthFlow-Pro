@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
+import cookieParser from 'cookie-parser';
 import cors from "cors";
 import env from 'dotenv';
 import express from "express";
 import mongoose from "mongoose";
-import RoleRoute from './routes/RoleRoute.js';
-import userRouter from "./routes/UserRoutes.js";
 import dataRouter from "./routes/DataRoute.js";
 import permissionRouter from "./routes/PermissionRoutes.js";
-import cookieParser from 'cookie-parser';
+import RoleRoute from './routes/RoleRoute.js';
+import userRouter from "./routes/UserRoutes.js";
 const app = express();
 
 env.config();
@@ -29,7 +29,7 @@ mongoose.connect(process.env.MONGODB_URI)
 })
 
 app.use('/permission', permissionRouter)
-app.use('/users', userRouter)
+app.use('/users',cookieParser(), userRouter)
 app.use('/roles', RoleRoute)
 app.use('/api', dataRouter)
 
