@@ -1,0 +1,165 @@
+openapi: 3.0.0
+
+info:
+  title: User and Role API
+  version: 1.0.0
+  description: API for user and role management
+
+paths:
+  /Register:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /UpdateRole:
+    post:
+      summary: Update the role of a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: ID of the user
+                name:
+                  type: string
+                  description: Name of the new role
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Message indicating success
+
+  /Login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email address of the user
+                password:
+                  type: string
+                  description: Password of the user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for the user
+                  user:
+                    type: object
+                    description: User object
+
+  /checkLogin:
+    get:
+      summary: Check if a user is logged in
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  loggedIn:
+                    type: boolean
+                    description: Indicates if the user is logged in
+                  user:
+                    type: object
+                    description: User object
+
+  /getRoles:
+    get:
+      summary: Get all roles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+
+  /rolePost:
+    post:
+      summary: Create a new role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the new role
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        email:
+          type: string
+          description: Email address of the user
+        password:
+          type: string
+          description: Password of the user
+        role:
+          type: string
+          description: Role of the user
+
+    Role:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the role
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Permissions associated with the role

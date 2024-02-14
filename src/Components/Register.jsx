@@ -1,6 +1,6 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Background from '../assets/background.jfif';
 import showEye from '../assets/hideIcon.png';
 import hideEye from '../assets/showIcon.png';
@@ -18,7 +18,7 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        await axios.post('http://Localhost:3000', formData)
+        await axios.post('http://Localhost:4005/users/Register', formData)
         setFormData({
             username: '',
             email: '',

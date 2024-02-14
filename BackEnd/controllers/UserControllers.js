@@ -15,7 +15,7 @@ const RegisterUser = async (req, res) => {
     if(existingUser){
       return res.status(400).json({message: "Username or email already exists"});
     }
-    const userRole = await Role.findOne({name: "Super Admin"});
+    const userRole = await Role.findOne({name: "Visitor"});
     if (!userRole) {
       return res.status(500).json({ message: 'Default role not found' });
     }
@@ -38,7 +38,7 @@ const RegisterUser = async (req, res) => {
 const LoginUser = async (req, res) => {
   try {
     const {email, password} = req.body;
-    const user = await User.findOne({email: email});
+    const user = await User.findOne({email: email}).populate('role');
     if (!user) {
       return res.status(400).json({message: "User not found"});
     }
@@ -49,19 +49,15 @@ const LoginUser = async (req, res) => {
       return res.status(400).json({message: "Invalid password"});
     }
 
-    const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn: '1d'});
-    res.cookie("access_token", token)
-    res.status(200).send({message : "User Logged In with Access Token"});
+    const token = jwt.sign({userId: user._id, role: user.role, email: user.email, userName: user.username}, process.env.Secret_KEY, {expiresIn: '1d'});
+
+    res.status(200).json({token, user});
   } catch (error) {
     console.log(`Error logging user: ${error} `);
     res.status(500).send({message : "Internal Server Error"});
   }
 };
 
-const Logout = async (req, res) => {
-  res.clearCookie("access_token");
-  res.status(200).send({message : "User Logged Out"});
-};
 
 const updateUserRole = async (req, res) => {
   const { id, name } = req.params;
@@ -76,22 +72,23 @@ const updateUserRole = async (req, res) => {
 
 const checkLoggedIn = async (req, res) => {
   try {
-    const token = req.cookies.access_token;
+    const token = req.headers.authorization.split(' ')[1];
     if (!token) {
       return res.status(401).json({ loggedIn: false });
     }
 
-    const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+    const decodedToken = jwt.verify(token, process.env.Secret_KEY);
     if (!decodedToken) {
       return res.status(401).json({ loggedIn: false });
     }
 
-    const user = await User.findById(decodedToken.userId);
+    const user = await User.findById(decodedToken.userId).populate('role');
     if (!user) {
       return res.status(401).json({ loggedIn: false });
     }
 
-    return res.status(200).json({ loggedIn: true });
+    return res.status(200).json({ loggedIn: true, user: decodedToken });
+    
   } catch (error) {
     console.log(`Error checking user authentication: ${error}`);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -100,11 +97,23 @@ const checkLoggedIn = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().populate('role');
     res.status(200).send(users);
   } catch (error) {
     console.log(`Error getting users: ${error}`);
   }
 }
 
-export default { RegisterUser, LoginUser, Logout, updateUserRole, checkLoggedIn, getUsers };
+const deleteUser = async (req, res) => {
+  try{
+    const { id } = req.params;
+    console.log(id)
+    const user = await User.findByIdAndDelete(id);
+    res.status(200).json({message: "User deleted successfully"});
+  }catch(error){
+    console.log(`Error deleting user: ${error}`);
+    res.status(500).send({message : "Internal Server Error"});
+  }
+}
+
+export default { RegisterUser, LoginUser, updateUserRole, checkLoggedIn, getUsers, deleteUser};

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,7 +8,9 @@ import hideEye from "../assets/showIcon.png";
 import userIcon from "../assets/userIcon.png";
 
 function Login() {
+ 
   const [clicked, setClicked] = useState(false);
+  const [loading, setLoading] = useState(true); 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,11 +20,23 @@ function Login() {
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:4005/users/getPermissions");
-        if (response.data.loggedIn) {
-          navigate("/Dashboard");
+        if(!localStorage.getItem('login')){
+          setLoading(false);
+          return console.log("No Token Found");
         }
+        const response = await axios.get(
+          "http://localhost:4005/users/checkLogin", {
+            headers: {
+              Authorization:`Bearer ${localStorage.getItem('login')}`,
+            },
+          });
+        if (response.data.loggedIn && response.data.user.role.name === "Super Admin") {
+          return navigate("/Dashboard")
+        } 
+        if(response.data.loggedIn){
+          return navigate("/Home")
+        }
+        setLoading(false);
       } catch (error) {
         console.log(error);
       }
@@ -29,8 +44,7 @@ function Login() {
     checkLoggedIn();
   }, [navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const response = await axios.post(
         "http://localhost:4005/users/Login",
@@ -41,11 +55,33 @@ function Login() {
         email: "",
         password: "",
       });
-      navigate("/Dashboard");
+      if(response.data.user.role.name === "Super Admin"){
+        return navigate("/Dashboard");
+      }
+      navigate("/Home");
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <div
@@ -58,10 +94,10 @@ function Login() {
             <input
               type="text"
               placeholder="Email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              name="email"
+              // value={formData.email}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
               className="w-full h-full bg-transparent outline-none border-2 border-[#ffffff33] rounded-full text-white px-6 focus:border-white duration-500 placeholder:text-white"
             />
             <img
@@ -75,10 +111,10 @@ function Login() {
             <input
               type={clicked ? "text" : "password"}
               placeholder="Password"
+              name="password"
               value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
               className=" w-full h-full bg-transparent outline-none border-2 border-[#ffffff33] rounded-full text-white px-6 focus:border-white duration-500 placeholder:text-white"
             />
             <img
@@ -113,7 +149,7 @@ function Login() {
           </button>
 
           <div className="text-sm mt-8 flex flex-col gap-1 items-center justify-center">
-            <p>Dont Have an Account</p>
+            <p>Don't Have an Account</p>
             <Link
               to="/Register"
               className="underline hover:text-[#0000EE] duration-300"

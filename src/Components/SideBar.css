@@ -1,0 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+.sidebar-items{
+  @apply flex gap-3 text-white text-[20px] hover:bg-sky-700 p-4 rounded duration-300 cursor-pointer
+}

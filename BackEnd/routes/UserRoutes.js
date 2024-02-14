@@ -6,14 +6,14 @@ import UserControllers from '../controllers/UserControllers.js';
 
 userRouter.post('/Register', UserControllers.RegisterUser);
 
-userRouter.post('/UpdateRole', UserControllers.updateUserRole);
+userRouter.put('/UpdateRole', UserControllers.updateUserRole);
 
 userRouter.post('/Login', UserControllers.LoginUser);
-
-userRouter.get('/Logout', UserControllers.Logout);
 
 userRouter.get('/checkLogin', UserControllers.checkLoggedIn)
 
 userRouter.get('/getUsers', UserControllers.getUsers);
+
+userRouter.delete('/deleteUser/:id', UserControllers.deleteUser)
 
 export default userRouter;

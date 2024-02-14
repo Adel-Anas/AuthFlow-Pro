@@ -4,6 +4,8 @@ import cors from "cors";
 import env from 'dotenv';
 import express from "express";
 import mongoose from "mongoose";
+import swaggerUi from 'swagger-ui-express';
+import yaml from 'yamljs';
 import dataRouter from "./routes/DataRoute.js";
 import permissionRouter from "./routes/PermissionRoutes.js";
 import RoleRoute from './routes/RoleRoute.js';
@@ -19,6 +21,8 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
+const swaggerDocument = yaml.load('./swagger.yaml');
+app.use('/AuthFlow', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(()=>{
@@ -29,7 +33,7 @@ mongoose.connect(process.env.MONGODB_URI)
 })
 
 app.use('/permission', permissionRouter)
-app.use('/users',cookieParser(), userRouter)
+app.use('/users', userRouter)
 app.use('/roles', RoleRoute)
 app.use('/api', dataRouter)
 
